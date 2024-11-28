@@ -2,6 +2,11 @@
 
 Write-Output "Generate stubs`n"
 
+if (-not (Get-Command protoc -ErrorAction SilentlyContinue)) {
+    Write-Output "protoc does not exist`n"
+    exit 1
+}
+
 # Define paths
 $PROTO_PATH = "./proto"
 $OUTPUT_PATHS = @(
@@ -11,21 +16,21 @@ $OUTPUT_PATHS = @(
 
 $SUCCESS = $true
 
-foreach ($PATH in $OUTPUT_PATHS) {
-    Write-Output "Start generating in $PATH"
+foreach ($OUTPUT_PATH in $OUTPUT_PATHS) {
+    Write-Output "Start generating in $OUTPUT_PATH"
 
     protoc `
         --proto_path=$PROTO_PATH `
         ecommerce/product_info.proto `
-        --go_out=$PATH `
+        --go_out=$OUTPUT_PATH `
         --go_opt=paths=source_relative `
-        --go-grpc_out=$PATH `
+        --go-grpc_out=$OUTPUT_PATH `
         --go-grpc_opt=paths=source_relative
 
     if ($LASTEXITCODE -eq 0) {
-        Write-Output "Successfully generated in $PATH`n"
+        Write-Output "Successfully generated in $OUTPUT_PATH`n"
     } else {
-        Write-Output "Failed to generate in $PATH`n"
+        Write-Output "Failed to generate in $OUTPUT_PATH`n"
         $SUCCESS = $false
     }
 }
